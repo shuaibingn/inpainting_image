@@ -1,0 +1,101 @@
+# ControlNet Inpainting 训练配置文件示例
+# 使用方法：根据你的需求修改此文件，然后在 train.py 中加载
+
+# ============================================
+# 数据集配置
+# ============================================
+data:
+  image_dir: "data/coco/train2017"
+  ann_file: "data/coco/annotations/instances_train2017.json"
+  image_size: 512
+  use_irregular_mask: true
+  mask_ratio_range: [0.1, 0.3]  # mask 占图像面积的比例范围
+
+# ============================================
+# 模型配置
+# ============================================
+model:
+  pretrained_model_name_or_path: "runwayml/stable-diffusion-v1-5"
+  freeze_unet: true  # 是否冻结 UNet 权重
+
+# ============================================
+# 训练配置
+# ============================================
+training:
+  # 基础参数
+  batch_size: 4
+  num_epochs: 100
+  num_workers: 4
+  seed: 42
+  
+  # 优化器参数
+  learning_rate: 1.0e-5
+  adam_weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1.0e-8
+  
+  # 学习率调度
+  lr_scheduler: "cosine"  # constant, linear, cosine
+  lr_warmup_steps: 500
+  
+  # 混合精度
+  mixed_precision: "fp16"  # no, fp16, bf16
+  
+  # 梯度
+  max_grad_norm: 1.0
+  gradient_accumulation_steps: 1
+
+# ============================================
+# 保存和日志
+# ============================================
+output:
+  output_dir: "./outputs"
+  save_steps: 1000
+  log_steps: 50
+  save_total_limit: 5  # 最多保留多少个 checkpoint
+  
+# ============================================
+# 推理配置
+# ============================================
+inference:
+  num_inference_steps: 50  # DDPM: 50, DDIM: 20
+  scheduler: "ddpm"  # ddpm, ddim
+  guidance_scale: 1.0
+
+# ============================================
+# 硬件配置
+# ============================================
+hardware:
+  # 分布式训练（需要配合 accelerate）
+  use_multi_gpu: false
+  
+  # 显存优化
+  enable_xformers_memory_efficient_attention: false  # 需要安装 xformers
+  gradient_checkpointing: false  # 节省显存但会稍微降低速度
+
+# ============================================
+# 数据增强（可选）
+# ============================================
+augmentation:
+  random_flip: true
+  random_rotation: false
+  color_jitter: false
+
+# ============================================
+# 实验跟踪（可选）
+# ============================================
+logging:
+  use_tensorboard: true
+  use_wandb: false
+  wandb_project: "controlnet-inpainting"
+  wandb_entity: "your-username"
+
+# ============================================
+# 调试
+# ============================================
+debug:
+  # 使用数据集子集进行快速测试
+  max_train_samples: null  # 设为整数以限制训练样本数
+  overfit_one_batch: false  # 只在一个 batch 上过拟合（用于调试）
+
