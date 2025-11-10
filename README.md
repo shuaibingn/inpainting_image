@@ -22,10 +22,11 @@
 - ✅ 自动从 COCO 数据集生成训练数据
 - ✅ 支持矩形和不规则 mask
 - ✅ 支持混合精度训练（FP16/BF16）
-- ✅ 支持分布式训练（via Accelerate）
+- ✅ 支持分布式训练（via Accelerate 或 PyTorch Lightning）
 - ✅ 提供 DDPM 和 DDIM 采样器
 - ✅ 完整的训练和推理流程
 - ✅ TensorBoard 日志记录
+- ✅ **新增：PyTorch Lightning 版本（更简洁、更强大）**
 
 ## 🔧 环境配置
 
@@ -103,7 +104,34 @@ python data.py
 
 ## 🚀 训练
 
-### 基础训练命令
+本项目提供两个训练版本，训练逻辑完全相同：
+
+### 版本 1：PyTorch Lightning（推荐 ⚡）
+
+**更简洁、更强大、自动化程度更高**
+
+```bash
+python train_lightning.py \
+  --image_dir data/coco/train2017 \
+  --ann_file data/coco/annotations/instances_train2017.json \
+  --batch_size 4 \
+  --num_epochs 100 \
+  --learning_rate 1e-5 \
+  --precision 16-mixed \
+  --devices 1
+```
+
+**优势：**
+- ✨ 代码更简洁（150 行 vs 420 行）
+- ✨ 自动分布式训练
+- ✨ 自动 checkpoint 管理
+- ✨ 更好的日志和可视化
+
+详见 [LIGHTNING_GUIDE.md](LIGHTNING_GUIDE.md)
+
+### 版本 2：原始训练脚本
+
+**完整控制训练流程，适合学习**
 
 ```bash
 python train.py \
@@ -238,12 +266,30 @@ python infer.py \
 
 ```
 inpainting_image/
-├── data.py              # 数据集加载器
-├── model.py             # ControlNet 模型定义
-├── train.py             # 训练脚本
-├── infer.py             # 推理脚本
-├── requirements.txt     # 依赖库
-└── README.md           # 说明文档
+├── 核心代码
+│   ├── data.py                  # 数据集加载器
+│   ├── model.py                 # ControlNet 模型定义
+│   ├── train.py                 # 训练脚本（原始版本）
+│   ├── train_lightning.py       # 训练脚本（Lightning 版本）⚡
+│   ├── lightning_module.py      # Lightning 模块封装
+│   ├── lightning_data.py        # Lightning DataModule
+│   └── infer.py                 # 推理脚本
+│
+├── 文档
+│   ├── README.md                # 主文档
+│   ├── LIGHTNING_GUIDE.md       # Lightning 使用指南
+│   ├── PROJECT_STRUCTURE.md     # 项目结构说明
+│   └── USAGE_EXAMPLES.md        # 使用示例
+│
+├── 工具
+│   ├── create_test_mask.py      # 创建测试 mask
+│   ├── test_installation.py     # 测试环境
+│   └── quick_start.sh           # 快速启动
+│
+└── 配置
+    ├── requirements.txt         # 依赖库
+    ├── config_example.yaml      # 配置示例
+    └── .gitignore              # Git 忽略规则
 ```
 
 ## 🔬 技术细节
